@@ -1,4 +1,13 @@
 var fs = require('fs');
+var http = require('http');
+var url = require('url');
+
+http.createServer(function (req, res){
+    
+}).listen(3000, function(){
+    console.log("server is ready");
+});
+
 
 function loadArt(file)
 {   
