@@ -18,7 +18,14 @@ http.createServer(function (req, res) {
         });
         req.on('end', function(){
         console.log(reqData);
-        })
+        var pos = reqData.indexOf("&");
+        var username = reqData.slice(9, pos);
+        console.log("username is " + username);
+        var pos2 = reqData.lastIndexOf("=");
+        var password = reqData.slice((pos2+1));
+        console.log("password is: " + password);
+        });
+        
     }else if (!qstr.msg) {
         resBody = resBody + '<html><head><title>Index</title></head>\n';
         resMsg = '<h2>Blog Home Page</h2>\n';
