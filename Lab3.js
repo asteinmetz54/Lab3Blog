@@ -9,7 +9,12 @@ http.createServer(function (req, res) {
     var resMsg = '';
     var urlObj = url.parse(req.url, true, false);
     var qstr = urlObj.query;
-    var cookies = [];
+    var role = '';
+    var username = '';
+
+    
+        var cookies = q.parse(req.headers.cookie,';','=');
+        console.log(cookies);
     
     //when user submits login infomation console prints what was typed in
     if (req.method == "POST"){
@@ -29,7 +34,6 @@ http.createServer(function (req, res) {
                    'Content-Type': "text/html",
                    'Set-Cookie': ['username=' + reqObj.username,'role=reviewer']
                });
-               // res.setHeader('Set-Cookie', ['username='+reqObj.username,'role=reviewer']);
             }else{
                resMsg += '<h3>Welcome Visitor!</h3><br>';
                res.writeHead(200,{
@@ -44,6 +48,7 @@ http.createServer(function (req, res) {
         });
     //landing page    
     }else if (!qstr.msg) {
+
         resBody = resBody + '<html><head><title>Index</title></head>\n';
         resMsg = '<h2>Blog Home Page</h2>\n';
         resMsg += '<a href="?msg=login">Login</a><br>';
@@ -104,4 +109,3 @@ function loadArt(artFile)
     return concatContent;
         
 }
-
