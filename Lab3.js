@@ -19,18 +19,30 @@ http.createServer(function (req, res) {
         });
         req.on('end', function(){
             var reqObj = q.parse(reqData);
-            if(reqObj.username == reqObj.password){
-                res.setHeader('Set-Cookie', ['username='+reqObj.username, 'expires=Thu, 18 Dec 2016 12:00:00 UTC'])
-                //res.setHeader('Set-Cookie', ['username='+reqObj.username,'role=reviewer']);
-                res.writeHead(200,{
-                    'Content-type': 'text/html',
-                });
-                
-                res.end();
-            }
-           
-        });
+
+            resBody = resBody + '<html><head><title>Index</title></head>\n';
+        resMsg = '<h2>Blog Home Page</h2><br>';
         
+            if(reqObj.username == reqObj.password){
+                resMsg += '<h3>Welcome ' + reqObj.username + '!</h3>';
+                res.writeHead(200,{
+                   'Content-Type': "text/html",
+                   'Set-Cookie': ['username=' + reqObj.username,'role=reviewer']
+               });
+               // res.setHeader('Set-Cookie', ['username='+reqObj.username,'role=reviewer']);
+            }else{
+               resMsg += '<h3>Welcome Visitor!</h3><br>';
+               res.writeHead(200,{
+                   'Content-Type': "text/html",
+                   'Set-Cookie': ['username=','role=visitor']
+               });
+            }
+            resMsg += loadTitles();
+            resBody += '<body>' + resMsg;
+            resMsg = resBody + '\n</body></html>';
+            res.end(resMsg);
+        });
+    //landing page    
     }else if (!qstr.msg) {
         resBody = resBody + '<html><head><title>Index</title></head>\n';
         resMsg = '<h2>Blog Home Page</h2>\n';
@@ -42,13 +54,12 @@ http.createServer(function (req, res) {
         res.setHeader("Content-Type", "text/html");
         res.writeHead(200);
         res.end(resMsg);
-    }else if(qstr.msg=='login'){
+    }else if(qstr.msg=='login'){ //load login page
         resMsg = fs.readFileSync("auth/login.html");
         res.setHeader("Content-Type", "text/html");
         res.writeHead(200);
         res.end(resMsg);
-    }else {
-        console.log("you clicked on art");
+    }else { //load art files
         resMsg = loadArt(qstr.msg);
         res.setHeader("Content-Type", "text/html");
         res.writeHead(200);
