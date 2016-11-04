@@ -19,15 +19,12 @@ http.createServer(function (req, res) {
         });
         req.on('end', function(){
             var reqObj = q.parse(reqData);
-            var resObj = {
-                username: reqObj.username,
-                userRole: "reviewer"
-            };
             if(reqObj.username == reqObj.password){
+                res.setHeader('Set-Cookie', ['username='+reqObj.username,'role=reviewer']);
                 res.writeHead(200,{
                     'Content-type': 'text/html',
-                    'Set-Cookie': q.stringify(resObj)
                 });
+                
                 res.end();
             }
            
