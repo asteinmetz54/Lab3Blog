@@ -20,7 +20,8 @@ http.createServer(function (req, res) {
         req.on('end', function(){
             var reqObj = q.parse(reqData);
             if(reqObj.username == reqObj.password){
-                res.setHeader('Set-Cookie', ['username='+reqObj.username,'role=reviewer']);
+                res.setHeader('Set-Cookie', ['username='+reqObj.username, 'expires=Thu, 18 Dec 2016 12:00:00 UTC'])
+                //res.setHeader('Set-Cookie', ['username='+reqObj.username,'role=reviewer']);
                 res.writeHead(200,{
                     'Content-type': 'text/html',
                 });
@@ -33,28 +34,54 @@ http.createServer(function (req, res) {
     }else if (!qstr.msg) {
         resBody = resBody + '<html><head><title>Index</title></head>\n';
         resMsg = '<h2>Blog Home Page</h2>\n';
-        resMsg += '<a href="?msg=login">Login</a>';
+        resMsg += '<a href="?msg=login">Login</a><br>';
+        resMsg += loadTitles();
+
         resBody += '<body>' + resMsg;
         resMsg = resBody + '\n</body></html>';
         res.setHeader("Content-Type", "text/html");
         res.writeHead(200);
         res.end(resMsg);
-    }else if(qstr.msg='login'){
+    }else if(qstr.msg=='login'){
         resMsg = fs.readFileSync("auth/login.html");
         res.setHeader("Content-Type", "text/html");
         res.writeHead(200);
         res.end(resMsg);
     }else {
-        resMsg = loadArt(fs.readFileSync(messages[qstr.msg]));
+        console.log("you clicked on art");
+        resMsg = loadArt(qstr.msg);
+        res.setHeader("Content-Type", "text/html");
+        res.writeHead(200);
+        res.end(resMsg);
     }
    
 }).listen(3000, function(){
     console.log("Server is ready");
 });
 
+function loadTitles(){
+    var articles = fs.readdirSync("../Lab3Blog");
+    var art = [];
+    for (var i = 0; i < articles.length; i++){
+        if (articles[i].includes(".art")){
+            art.push(articles[i]);
+        }
+    };
+
+    var concatContent = '';
+   
+    for (var i = 0; i < art.length; i++){
+         var json = JSON.parse(fs.readFileSync(art[i]));
+        concatContent = concatContent.concat('<a href="?msg='+ art[i] + '">' + json.Title +'</a><br>');
+        
+    }
+    
+    return concatContent;
+}
+
 function loadArt(artFile)
 {   
-    var JSONarray = JSON.parse(artFile);
+    var JSONarray = JSON.parse(fs.readFileSync(artFile));
     var concatContent='';
     concatContent = concatContent.concat(fs.readFileSync("blogs/header.html").toString());
        
