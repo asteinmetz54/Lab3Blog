@@ -9,6 +9,7 @@ http.createServer(function (req, res) {
     var resMsg = '';
     var urlObj = url.parse(req.url, true, false);
     var qstr = urlObj.query;
+    var cookies = [];
     
     //when user submits login infomation console prints what was typed in
     if (req.method == "POST"){
@@ -17,17 +18,19 @@ http.createServer(function (req, res) {
             reqData += chunk;
         });
         req.on('end', function(){
-            console.log(reqData);
-            var loginInfo = q.parse(reqData);
-            console.log(loginInfo);
-            /*
-            var pos = reqData.indexOf("&");
-            var username = reqData.slice(9, pos);
-            console.log("username is " + username);
-            var pos2 = reqData.lastIndexOf("=");
-            var password = reqData.slice((pos2+1));
-            console.log("password is: " + password);
-            */
+            var reqObj = q.parse(reqData);
+            var resObj = {
+                username: reqObj.username,
+                userRole: "reviewer"
+            };
+            if(reqObj.username == reqObj.password){
+                res.writeHead(200,{
+                    'Content-type': 'text/html',
+                    'Set-Cookie': q.stringify(resObj)
+                });
+                res.end();
+            }
+           
         });
         
     }else if (!qstr.msg) {
@@ -36,14 +39,18 @@ http.createServer(function (req, res) {
         resMsg += '<a href="?msg=login">Login</a>';
         resBody += '<body>' + resMsg;
         resMsg = resBody + '\n</body></html>';
+        res.setHeader("Content-Type", "text/html");
+        res.writeHead(200);
+        res.end(resMsg);
     }else if(qstr.msg='login'){
         resMsg = fs.readFileSync("auth/login.html");
+        res.setHeader("Content-Type", "text/html");
+        res.writeHead(200);
+        res.end(resMsg);
     }else {
         resMsg = loadArt(fs.readFileSync(messages[qstr.msg]));
     }
-    res.setHeader("Content-Type", "text/html");
-    res.writeHead(200);
-    res.end(resMsg);
+   
 }).listen(3000, function(){
     console.log("Server is ready");
 });
